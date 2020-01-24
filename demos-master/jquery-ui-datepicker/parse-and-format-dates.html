@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="../assets/styles.min.css" rel="stylesheet">
+	<title>jQuery UI Datepicker: Parse and Format Dates</title>
+	<link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/start/jquery-ui.min.css" rel="stylesheet">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+</head>
+<body>
+	<input id="datepicker" type="text">
+	<p id="dateoutput"></p>
+	<script>
+		/*
+		 * jQuery UI Datepicker: Parse and Format Dates
+		 * https://shannenpio-w.blogspot.com/2013/12/5-jquery-ui-autocomplete-examples.html
+		 */
+		$(function() {
+			$("#datepicker").datepicker({
+				dateFormat: "dd-mm-yy",
+				onSelect: function(dateText, inst) {
+					var date = $.datepicker.parseDate(inst.settings.dateFormat || $.datepicker._defaults.dateFormat, dateText, inst.settings);
+					var dateText1 = $.datepicker.formatDate("D, d M yy", date, inst.settings);
+					date.setDate(date.getDate() + 7);
+					var dateText2 = $.datepicker.formatDate("D, d M yy", date, inst.settings);
+					$("#dateoutput").html("Chosen date is <b>" + dateText1 + "</b>; chosen date + 7 days yields <b>" + dateText2 + "</b>");
+				}
+			});
+		});
+	</script>
+</body>
+</html>

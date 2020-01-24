@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="../assets/styles.min.css" rel="stylesheet">
+	<title>jQuery UI Autocomplete: Custom HTML in Dropdown</title>
+	<link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/start/jquery-ui.min.css" rel="stylesheet">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+	<style>
+		.loading {
+			display: none;
+			width: 16px;
+			height: 16px;
+			background-image: url(loading.gif);
+			vertical-align: text-bottom;
+		}
+		/* autocomplete adds the ui-autocomplete-loading class to the textbox when it is _busy_, use general sibling combinator ingeniously */
+		#autocomplete.ui-autocomplete-loading ~ .loading {
+			display: inline-block;
+		}
+		.ui-autocomplete .m-icon {
+			float: left;
+			max-width: 32px;
+		}
+		.ui-autocomplete .x-icon {
+			float: left;
+			width: 32px;
+			opacity: .5;
+			font-size: small;
+			text-align: center;
+		}
+		.ui-autocomplete .m-name {
+			display: block;
+			margin-left: 40px;
+		}
+		.ui-autocomplete .m-year {
+			display: block;
+			margin-left: 40px;
+			font-size: smaller;
+		}
+		.ui-autocomplete div::after {
+			content: "";
+			display: table;
+			clear: both;
+		}
+	</style>
+</head>
+<body>
+	<form action="https://www.imdb.com/find" target="_blank">
+		<input id="autocomplete" type="text" placeholder="Movie name" name="q"> <span class="loading"></span>
+	</form>
+	<script>
+		/*
+		 * jQuery UI Autocomplete: Custom HTML in Dropdown
+		 * https://shannenpio-w.blogspot.com/2013/12/5-jquery-ui-autocomplete-examples.html
+		 */
+		$(function() {
+			$("#autocomplete").autocomplete({
+				delay: 500,
+				minLength: 3,
+				source: function(request, response) {
+					$.getJSON("https://www.omdbapi.com/", {
+						// do not copy the api key; get your own
+						apikey: "d6ae2fa3",
+						s: request.term,
+						type: "movie",
+						r: "json"
+					}, function(data) {
+						// data is an array of objects and must be transformed for autocomplete to use
+						var array = data.Response === "False" ? [] : $.map(data.Search, function(m) {
+							return {
+								label: m.Title,
+								year: m.Year,
+								icon: m.Poster === "N/A" ? null : m.Poster.replace(/_SX\d+\.jpg/, "_SX32.jpg"),
+								url: "https://www.imdb.com/title/" + m.imdbID
+							};
+						});
+						response(array);
+					});
+				},
+				focus: function(event, ui) {
+					// prevent autocomplete from updating the textbox
+					event.preventDefault();
+				},
+				select: function(event, ui) {
+					// prevent autocomplete from updating the textbox
+					event.preventDefault();
+					// navigate to the selected item's url
+					window.open(ui.item.url);
+				}
+			}).data("ui-autocomplete")._renderItem = function(ul, item) {
+				var $div = $("<div></div>");
+				if (item.icon) {
+					$("<img class='m-icon'>").attr("src", item.icon).appendTo($div);
+				} else {
+					$("<span class='x-icon'>no img</span>").appendTo($div);
+				}
+				$("<span class='m-name'></span>").text(item.label).appendTo($div);
+				$("<span class='m-year'></span>").text(item.year).appendTo($div);
+				return $("<li></li>").append($div).appendTo(ul);
+			};
+		});
+	</script>
+	<p>This example uses <a href="https://www.omdbapi.com/" target="_blank">OMDb API</a>.</p>
+</body>
+</html>

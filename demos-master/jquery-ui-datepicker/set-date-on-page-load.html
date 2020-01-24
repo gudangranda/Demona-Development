@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="../assets/styles.min.css" rel="stylesheet">
+	<title>jQuery UI Datepicker: Set Date on Page Load</title>
+	<link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/start/jquery-ui.min.css" rel="stylesheet">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+</head>
+<body>
+	<input id="datepicker" type="text">
+	<script>
+		/*
+		 * jQuery UI Datepicker: Set Date on Page Load
+		 * https://shannenpio-w.blogspot.com/2013/12/5-jquery-ui-autocomplete-examples.html
+		 */
+		$(function() {
+			$("#datepicker").datepicker();
+			$("#datepicker").datepicker("setDate", new Date);
+		});
+	</script>
+</body>
+</html>

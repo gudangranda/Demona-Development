@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="../assets/styles.min.css" rel="stylesheet">
+	<title>jQuery UI Datepicker: Update Datepicker Using AJAX</title>
+	<link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/start/jquery-ui.min.css" rel="stylesheet">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+	<style>
+		.dp-highlight-unknown .ui-state-default {
+			background: #800;
+			color: #FFF;
+		}
+		.dp-highlight-holiday .ui-state-default {
+			background: #484;
+			color: #FFF;
+		}
+	</style>
+</head>
+<body>
+	<div id="datepicker"></div>
+	<p><input id="dateloader" type="button" value="Load holidays from Google calendar"></p>
+	<script>
+		/*
+		 * jQuery UI Datepicker: Update Datepicker Using AJAX
+		 * https://shannenpio-w.blogspot.com/2013/12/5-jquery-ui-autocomplete-examples.html
+		 */
+		$(function() {
+			var dateList;
+			var refDate = new Date;
+			// searching events from 1st of current month for next 12 months
+			// note that the datepicker min and max dates are inclusive but
+			// calendar api min date is inclusive and max date is exclusive
+			var minDate = new Date(refDate.getFullYear(), refDate.getMonth(), 1);
+			var maxDate_DP = new Date(refDate.getFullYear(), refDate.getMonth() + 12, 0);
+			var maxDate_API = new Date(refDate.getFullYear(), refDate.getMonth() + 12, 1);
+			$("#datepicker").datepicker({
+				minDate: minDate,
+				maxDate: maxDate_DP,
+				beforeShowDay: function(date) {
+					var r = [true, ""];
+					if (dateList === undefined) {
+						r[1] = "dp-highlight-unknown";
+					} else {
+						var key = $.datepicker.formatDate("yy-mm-dd", date);
+						if (key in dateList) {
+							r[1] = "dp-highlight-holiday";
+							r[2] = dateList[key].join(", ");
+						}
+					}
+					return r;
+				}
+			});
+			$("#dateloader").on("click", function() {
+				$(this).prop("disabled", true);
+				$.getJSON("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent("en.usa#holiday@group.v.calendar.google.com") + "/events", {
+					key: "AIzaSyBs1MVxS8kIxL9BXrxYE0lfvDP-iF_cmeA",
+					fields: "items(summary,start,end)",
+					timeMin: minDate.toISOString(),
+					timeMax: maxDate_API.toISOString()
+				}, function(data) {
+					dateList = {};
+					data.items.forEach(function(item) {
+						var key = item.start.date;
+						if (key in dateList === false) {
+							dateList[key] = [];
+						}
+						dateList[key].push(item.summary);
+					});
+					$("#datepicker").datepicker("refresh");
+				});
+			});
+		});
+	</script>
+</body>
+</html>
